@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Famous Movies!</title>
+</head>
+<body>
+<div class="container">
+	<h1>Famous Movies!</h1>
+	<div id="buttonsView">
+	</div>
+	<br><br>
+	<div id="form">
+		<form id="movie-form">
+			<label for="movie-input">Add another movie stupid:</label>
+			<input type="text" id="movie-input">
+
+			<input id="addmovie" type="submit" value="ANOTHA ONE">
+		</form>
+		<br><br>
+	</div>
+	<div id="gifsView">
+	</div>
+
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
+<script>
+
+var movies = ["Pulp Fiction", "The Drak Knight", "Hero", "Toy Story", "The Shawshank Redemption", "Monster's Ball", "Forest Gump", "E.T. the Extra-Terrestrial", "Goodfellas", "American Beauty", "Fight Club",];
+
+function makeButtons(){ 
+	$('#buttonsView').empty();
+	for (var i = 0; i < movies.length; i++){
+		var a = $('<button>') 
+		a.addClass('movie'); 
+		a.attr('data-name', movies[i]); 
+		a.text(movies[i]);
+		$('#buttonsView').append(a);
+	}
+}
+
+$("#addmovie").on("click", function(){
+
+	var movie = $("#movie-input").val().trim();
+	movies.push(movie);
+	makeButtons();
+	return false; 
+})
+
+
+function displayGifs(){
+	var movie = $(this).attr("data-name");
+     var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + movie + "&limit=9&api_key=fQt91SC2nZnhA1ryDarnYr1fy97j1hTC";
+
+		$.ajax({url: queryURL, method: "GET"}).done(function (response) {
+			console.log(response.data);
+
+			var results = response.data;
+			for (var i = 0; i < results.length; i++) {
+
+				var gifDiv = $('<div class=gifs>');
+				var movieGif = $('<img>');
+					movieGif.attr('src', results[i].images.fixed_height_still.url);
+					movieGif.attr('title', "Rating: " + results[i].rating);
+					movieGif.attr('data-still', results[i].images.fixed_height_still.url);
+					movieGif.attr('data-state', 'still');
+					movieGif.addClass('gif');
+					movieGif.attr('data-animate', results[i].images.fixed_height.url);
+
+				gifDiv.append(movieGif)
+				$("#gifsView").prepend(gifDiv);
+			}
+			
+		});
+}
+
+$(document).on('click', '.gif', function(){
+	var state = $(this).attr('data-state');
+		if ( state == 'still'){
+                $(this).attr('src', $(this).data('animate'));
+                $(this).attr('data-state', 'animate');
+            }else{
+                $(this).attr('src', $(this).data('still'));
+                $(this).attr('data-state', 'still');
+            };
+});
+
+$(document).on("click", ".movie", displayGifs);
+makeButtons();
+
+</script>
+</body>
+</html>
